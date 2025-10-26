@@ -1,0 +1,71 @@
+/* Custom styles for absensi feature */
+.qr-code-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.qr-code {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#map {
+    height: 500px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+#camera-preview {
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.table-responsive {
+    margin-top: 20px;
+}
+
+.progress {
+    height: 25px;
+}
+
+.progress-bar {
+    font-weight: bold;
+}
+
+.custom-marker {
+    border: none !important;
+    background: transparent !important;
+}
+
+.status-badge {
+    font-size: 0.85em;
+    padding: 0.4em 0.6em;
+}
+
+.card-header {
+    font-weight: bold;
+}
+
+.btn-action {
+    margin-right: 5px;
+}
+
+.filter-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .filter-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-container > * {
+        width: 100%;
+    }
+}
