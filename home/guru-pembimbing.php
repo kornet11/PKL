@@ -175,25 +175,9 @@ if (isset($_SESSION['id_user']) && ($_SESSION['hak_akses'] == 'gurukaprok' || $_
   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
   <link href="assets/css/styles.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
-<title>Guru Pembimbing - Sistem PKL</title>
-
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <style>
   :root {
     --primary: #4e73df;
@@ -308,6 +292,15 @@ if (isset($_SESSION['id_user']) && ($_SESSION['hak_akses'] == 'gurukaprok' || $_
 
   .dataTables_filter {
     margin: 1rem;
+  }
+
+  /* responsive tweaks for tables */
+  table.dataTable td, table.dataTable th { white-space: normal !important; word-break: break-word; }
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width:576px){
+    .profile-img{width:36px;height:36px;}
+    .btn-action{width:28px;height:28px;}
+    .table th, .table td{padding:0.45rem 0.5rem;font-size:0.9rem;}
   }
 </style>
 </head>
@@ -624,59 +617,89 @@ if (isset($_SESSION['id_user']) && ($_SESSION['hak_akses'] == 'gurukaprok' || $_
   <?php endforeach; ?>
 
   <!-- JavaScript Libraries -->
-
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js" integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-  <script src="assets/js/scripts.js"></script>
-  <script src="assets/js/datatables-simple-demo.js"></script>
-  <script src="./assets/template/footer.php"></script>
-  <script>
-    // Initialize DataTable
-   $(document).ready(function() {
-  let lastCol = $('#dataTable thead th').length - 1;
-  $('#dataTable').DataTable({
-  responsive: {
-    details: {
-      display: $.fn.dataTable.Responsive.display.modal({
-        header: function(row) {
-          var data = row.data();
-          return 'Detail Guru: ' + data[3]; // Menampilkan nama guru di header modal
-        }
-      }),
-      renderer: $.fn.dataTable.Responsive.renderer.tableAll({
-        tableClass: 'table'
-      })
-    }
-  },
-  language: {
-    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json'
-  },
-  columnDefs: [{
-    orderable: false,
-    targets: [7] // Kolom Aksi
-  }],
-  pageLength: 10,
-  lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]]
-});
-});
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+   <script src="assets/js/scripts.js"></script>
+   <script src="assets/js/datatables-simple-demo.js"></script>
+   <script src="./assets/template/footer.php"></script>
+   <script>
+    // Initialize DataTable dengan responsive (modal/details di mobile)
+    $(document).ready(function() {
+      var $tbl = $('#dataTable');
+      if (!$tbl.length) return;
+      if (typeof $.fn.DataTable !== 'function' || !$.fn.dataTable.Responsive) {
+        console.warn('DataTables or Responsive plugin not loaded on guru-pembimbing.php');
+        return;
+      }
 
+      // detect column indexes dynamically
+      var actionIndex = -1, nameIndex = -1;
+      $tbl.find('thead th').each(function(i){
+        var txt = $(this).text().trim().toLowerCase();
+        if (txt.indexOf('aksi') !== -1) actionIndex = i;
+        if (txt.indexOf('nama') !== -1 && nameIndex === -1) nameIndex = i;
+      });
+
+      var columnDefs = [
+        { responsivePriority: 1, targets: 0 } // always keep No
+      ];
+      if (nameIndex > -1) columnDefs.push({ responsivePriority: 2, targets: nameIndex });
+      if (actionIndex > -1) columnDefs.push({ className: 'none', orderable: false, targets: actionIndex, responsivePriority: 1000 });
+
+      $tbl.DataTable({
+        responsive: {
+          details: {
+            display: $.fn.dataTable.Responsive.display.modal({
+              header: function(row) {
+                var data = row.data();
+                return 'Detail Guru: ' + (nameIndex > -1 ? (data[nameIndex] || '') : (data.join(' - ')));
+              }
+            }),
+            renderer: $.fn.dataTable.Responsive.renderer.tableAll({ tableClass: 'table' })
+          }
+        },
+        autoWidth: false,
+        scrollX: true,
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json' },
+        columnDefs: columnDefs,
+        pageLength: 10
+      });
+    });
+
+    // Fallback sidebar toggle if main menu script didn't attach
+    (function () {
+      var btn = document.getElementById('sidebarToggle');
+      if (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          document.body.classList.toggle('sb-sidenav-toggled');
+        }, false);
+      }
+    })();
 
     function confirmDelete() {
       return confirm('Apakah Anda Yakin Ingin Menghapus Data Ini?');
     }
-
+ 
     // Toggle password visibility
-    document.getElementById('togglePassword').addEventListener('click', function () {
-      const passwordField = document.getElementById('password');
-      const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordField.setAttribute('type', type);
-      this.querySelector('i').classList.toggle('fa-eye');
-      this.querySelector('i').classList.toggle('fa-eye-slash');
-    });
-
+    (function(){
+      var tb = document.getElementById('togglePassword');
+      if (tb) {
+        tb.addEventListener('click', function () {
+          var passwordField = document.getElementById('password');
+          if (!passwordField) return;
+          var type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordField.setAttribute('type', type);
+          var ic = this.querySelector('i');
+          if (ic) { ic.classList.toggle('fa-eye'); ic.classList.toggle('fa-eye-slash'); }
+        }, false);
+      }
+    })();
+ 
     function togglePassword(id) {
       const passwordInput = document.getElementById(id);
       const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
@@ -684,14 +707,7 @@ if (isset($_SESSION['id_user']) && ($_SESSION['hak_akses'] == 'gurukaprok' || $_
       const icon = passwordInput.nextElementSibling.querySelector('i');
       icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
     }
-
-    // Inisialisasi tooltips
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    });
   </script>
   <script src="./assets/template/logout-alert.php"></script>
 </body>
-
 </html>

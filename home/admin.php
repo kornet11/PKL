@@ -113,6 +113,8 @@ if (isset($_POST["edit"])) {
 
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+    <!-- DataTables Responsive CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -263,6 +265,41 @@ if (isset($_POST["edit"])) {
             border-radius: 5px;
             padding: 5px 10px;
             border: 1px solid #ced4da;
+        }
+
+        /* Improve table wrapping & responsive */
+        /* Allow table cells to wrap long content on small screens */
+        table.dataTable td,
+        table.dataTable th {
+            white-space: normal !important;
+            word-break: break-word;
+        }
+
+        /* Ensure responsive container allows horizontal scroll if needed on very small screens */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Shrink profile images and action buttons on small screens */
+        @media (max-width: 576px) {
+            .profile-img {
+                width: 36px;
+                height: 36px;
+            }
+
+            .btn-action {
+                width: 28px;
+                height: 28px;
+                font-size: 0.85rem;
+            }
+
+            .table th,
+            .table td {
+                padding: 0.45rem 0.5rem;
+                font-size: 0.9rem;
+            }
         }
     </style>
 </head>
@@ -541,54 +578,50 @@ if (isset($_POST["edit"])) {
 
     <script>
         $(document).ready(function() {
-            // Initialize DataTable with responsive settings
-            $('#dataTableAdmin').DataTable({
-                responsive: true,
-                language: {
-                    processing: "Memproses...",
-                    lengthMenu: "Tampilkan _MENU_ data per halaman",
-                    zeroRecords: "Tidak ditemukan data yang sesuai",
-                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
-                    infoFiltered: "(disaring dari _MAX_ data keseluruhan)",
-                    search: "Cari:",
-                    paginate: {
-                        first: "Pertama",
-                        last: "Terakhir",
-                        next: "Selanjutnya",
-                        previous: "Sebelumnya"
-                    }
-                },
-                columnDefs: [{
-                        responsivePriority: 1,
-                        targets: 0
+            if ($('#dataTableAdmin').length) {
+                $('#dataTableAdmin').DataTable({
+                    responsive: {
+                        details: {
+                            display: $.fn.dataTable.Responsive.display.modal({
+                                header: function(row) {
+                                    var data = row.data();
+                                    return 'Detail: ' + (data[2] || '');
+                                }
+                            }),
+                            renderer: $.fn.dataTable.Responsive.renderer.tableAll({
+                                tableClass: 'table'
+                            })
+                        }
                     },
-                    {
-                        responsivePriority: 2,
-                        targets: 1
+                    autoWidth: false,
+                    scrollX: true,
+                    language: {
+                        processing: "Memproses...",
+                        lengthMenu: "Tampilkan _MENU_ data per halaman",
+                        zeroRecords: "Tidak ditemukan data yang sesuai",
+                        info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                        infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                        infoFiltered: "(disaring dari _MAX_ data keseluruhan)",
+                        search: "Cari:",
+                        paginate: {
+                            first: "Pertama",
+                            last: "Terakhir",
+                            next: "Selanjutnya",
+                            previous: "Sebelumnya"
+                        }
                     },
-                    {
-                        responsivePriority: 3,
-                        targets: 2
-                    },
-                    {
-                        responsivePriority: 4,
-                        targets: 7
-                    },
-                    {
-                        orderable: false,
-                        targets: [7]
-                    }
-                ],
-                order: [
-                    [0, 'asc']
-                ],
-                pageLength: 10,
-                lengthMenu: [
-                    [5, 10, 25, 50, -1],
-                    [5, 10, 25, 50, "Semua"]
-                ]
-            });
+                    columnDefs: [
+                        { responsivePriority: 1, targets: 0 },   // No
+                        { responsivePriority: 2, targets: 1 },   // Username
+                        { responsivePriority: 3, targets: 2 },   // Nama Lengkap
+                        { responsivePriority: 4, targets: 5 },   // Hak Akses
+                        { responsivePriority: 5, targets: 6 },   // Foto
+                        { orderable: false, targets: -1, responsivePriority: 1000 } // Aksi (silang ke detail dulu)
+                    ],
+                    pageLength: 10,
+                    lengthMenu: [[5,10,25,50,-1],[5,10,25,50,"Semua"]]
+                });
+            }
         });
 
         function confirmDelete() {

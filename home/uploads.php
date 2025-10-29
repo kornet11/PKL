@@ -230,51 +230,44 @@ if (isset($_POST['upload'])) {
 
     <script>
         $(document).ready(function() {
-            $('#datatableUploads').DataTable({
-                paging: true,
-                searching: true,
-                ordering: true,
-                info: true,
-                lengthMenu: [5, 10, 25, 50],
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 'tr'
-                    }
-                },
-                columnDefs: [{
-                        responsivePriority: 1,
-                        targets: 0
+            if ($('#datatableUploads').length) {
+                $('#datatableUploads').DataTable({
+                    responsive: {
+                        details: {
+                            display: $.fn.dataTable.Responsive.display.modal({
+                                header: function(row) {
+                                    var data = row.data();
+                                    return 'File: ' + (data[1] || '');
+                                }
+                            }),
+                            renderer: $.fn.dataTable.Responsive.renderer.tableAll({ tableClass: 'table' })
+                        }
                     },
-                    {
-                        responsivePriority: 2,
-                        targets: 4
-                    },
-                    {
-                        responsivePriority: 3,
-                        targets: 3
-                    },
-                    {
-                        responsivePriority: 2,
-                        targets: 1
+                    autoWidth: false,
+                    scrollX: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    lengthMenu: [5,10,25,50],
+                    columnDefs: [
+                        { responsivePriority: 1, targets: 0 }, // No
+                        { responsivePriority: 2, targets: 1 }, // Nama File
+                        { responsivePriority: 3, targets: 3 }, // Tanggal
+                        { orderable: false, targets: -1, responsivePriority: 1000 } // Aksi -> ke detail saat sempit
+                    ],
+                    language: {
+                        sProcessing: "Sedang memproses...",
+                        sLengthMenu: "Tampilkan _MENU_ data",
+                        sZeroRecords: "Tidak ditemukan data yang sesuai",
+                        sInfo: "Tampilkan _START_ sampai _END_ dari _TOTAL_ data",
+                        sInfoEmpty: "Tampilkan 0 sampai 0 dari 0 data",
+                        sInfoFiltered: "(disaring dari _MAX_ data keseluruhan)",
+                        sSearch: "Cari:",
+                        oPaginate: { sFirst: "Pertama", sPrevious: "<-", sNext: "->", sLast: "Terakhir" }
                     }
-                ],
-                language: {
-                    sProcessing: "Sedang memproses...",
-                    sLengthMenu: "Tampilkan _MENU_ data",
-                    sZeroRecords: "Tidak ditemukan data yang sesuai",
-                    sInfo: "Tampilkan _START_ sampai _END_ dari _TOTAL_ data",
-                    sInfoEmpty: "Tampilkan 0 sampai 0 dari 0 data",
-                    sInfoFiltered: "(disaring dari _MAX_ data keseluruhan)",
-                    sSearch: "Cari:",
-                    oPaginate: {
-                        sFirst: "Pertama",
-                        sPrevious: "<-",
-                        sNext: "->",
-                        sLast: "Terakhir"
-                    }
-                }
-            });
+                });
+            }
         });
     </script>
     <script src="./assets/template/logout-alert.php"></script>

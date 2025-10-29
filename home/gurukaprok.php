@@ -107,24 +107,9 @@ if (isset($_POST['edit'])) {
   <link href="assets/css/styles.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 </head>
-<title>Guru Kaprok - Sistem PKL</title>
-
-<!-- Bootstrap CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<!-- DataTables CSS -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
-
-<!-- Google Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <style>
   :root {
     --primary: #4e73df;
@@ -240,8 +225,37 @@ if (isset($_POST['edit'])) {
   .dataTables_filter {
     margin: 1rem;
   }
+
+  /* small responsive tweaks for tables (ensure wrapping on mobile) */
+  table.dataTable td,
+  table.dataTable th {
+    white-space: normal !important;
+    word-break: break-word;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-width: 576px) {
+    .profile-img {
+      width: 36px;
+      height: 36px;
+    }
+
+    .btn-action {
+      width: 28px;
+      height: 28px;
+    }
+
+    .table th,
+    .table td {
+      padding: 0.45rem 0.5rem;
+      font-size: 0.9rem;
+    }
+  }
 </style>
-</head>
 
 <body class="sb-nav-fixed">
   <!-- Navbar -->
@@ -343,7 +357,7 @@ if (isset($_POST['edit'])) {
                     <th width="50">No</th>
                     <th width="80">Foto</th>
                     <th>NIP</th>
-                    <th>Nama Kaprok</th>
+                    <th>Nama </th>
                     <th>Jurusan</th>
                     <th>Jabatan</th>
                     <th>No Telepon</th>
@@ -545,9 +559,71 @@ if (isset($_POST['edit'])) {
   <?php endforeach; ?>
 
   <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="./assets/js/scripts.js"></script>
-  <script src="./assets/template/footer.php"></script>
+  <script>
+    $(document).ready(function() {
+      var $tbl = $('#example');
+      if (!$tbl.length) return;
+      if (typeof $.fn.DataTable !== 'function' || !$.fn.dataTable.Responsive) {
+        console.warn('DataTables or Responsive plugin not loaded on gurukaprok.php');
+        return;
+      }
+
+      var actionIndex = -1, nameIndex = -1;
+      $tbl.find('thead th').each(function(i){
+        var txt = $(this).text().trim().toLowerCase();
+        if (txt.indexOf('aksi') !== -1) actionIndex = i;
+        if (txt.indexOf('nama') !== -1 && nameIndex === -1) nameIndex = i;
+      });
+
+      var columnDefs = [{ responsivePriority: 1, targets: 0 }];
+      if (nameIndex > -1) columnDefs.push({ responsivePriority: 2, targets: nameIndex });
+      if (actionIndex > -1) columnDefs.push({ className: 'none', orderable: false, targets: actionIndex, responsivePriority: 1000 });
+
+      $tbl.DataTable({
+        responsive: {
+          details: {
+            display: $.fn.dataTable.Responsive.display.modal({
+              header: function(row) { var d = row.data(); return 'Detail: ' + (nameIndex > -1 ? (d[nameIndex] || '') : (d.join(' - '))); }
+            }),
+            renderer: $.fn.dataTable.Responsive.renderer.tableAll({ tableClass: 'table' })
+          }
+        },
+        autoWidth: false,
+        scrollX: true,
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/id.json' },
+        columnDefs: columnDefs,
+        pageLength: 10
+      });
+    });
+
+    // Fallback sidebarToggle
+    (function () {
+      var btn = document.getElementById('sidebarToggle');
+      if (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          document.body.classList.toggle('sb-sidenav-toggled');
+        }, false);
+      }
+    })();
+
+    function confirmDelete() {
+      return confirm('Apakah Anda Yakin Ingin Menghapus Data Ini?');
+    }
+
+    function togglePassword(id) {
+      const el = document.getElementById(id);
+      const t = el.getAttribute('type') === 'password' ? 'text' : 'password';
+      el.setAttribute('type', t);
+    }
+  </script>
   <script src="./assets/template/logout-alert.php"></script>
 </body>
 

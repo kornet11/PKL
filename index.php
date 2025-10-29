@@ -158,15 +158,17 @@ if (isset($_POST["login"])) {
     $error = true;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
+    <!-- ditambahkan agar responsive pada mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>PKL | Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Responsive improvements */
         :root {
             --primary-color: #4361ee;
             --secondary-color: #3f37c9;
@@ -179,35 +181,38 @@ if (isset($_POST["login"])) {
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ffffff; /* Diubah menjadi putih */
+            background-color: #ffffff;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 24px;
+            margin: 0;
         }
 
+        /* container yang responsive: lebar fleksibel tapi ada max */
         .login-container {
-            max-width: 450px;
-            width: 100%;
+            width: min(95%, 540px);
+            margin: 0 auto;
         }
 
         .card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
             overflow: hidden;
-            transition: transform 0.3s ease;
+            transition: transform 0.25s ease;
+            width: 100%;
         }
 
         .card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-4px);
         }
 
         .card-header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
-            padding: 30px 20px;
+            padding: clamp(18px, 3vw, 28px);
             text-align: center;
             border-bottom: none;
         }
@@ -216,41 +221,30 @@ if (isset($_POST["login"])) {
             margin: 0;
             font-weight: 600;
             letter-spacing: 1px;
+            font-size: clamp(1.1rem, 2.2vw, 1.4rem);
         }
 
         .card-header .system-name {
-            font-size: 1.8rem;
-            margin-bottom: 10px;
+            font-size: clamp(1.4rem, 3.2vw, 1.8rem);
+            margin-bottom: 8px;
         }
 
         .card-header .login-title {
-            font-size: 1.2rem;
-            opacity: 0.9;
+            font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+            opacity: 0.95;
         }
 
         .card-body {
-            padding: 30px;
+            padding: clamp(18px, 3.5vw, 30px);
         }
 
-        .form-floating {
-            margin-bottom: 20px;
-        }
+        .form-floating { margin-bottom: 16px; }
 
         .form-control {
             border-radius: 10px;
             border: 1px solid #ddd;
             padding: 12px 15px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-
-        .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
-        }
-
-        .form-check {
-            margin-bottom: 20px;
+            font-size: 1rem;
         }
 
         .btn-primary {
@@ -260,80 +254,51 @@ if (isset($_POST["login"])) {
             padding: 12px 20px;
             font-weight: 600;
             letter-spacing: 1px;
-            transition: all 0.3s;
+            transition: all 0.2s;
             width: 100%;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
         }
 
         .links-container {
             display: flex;
             justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .links-container a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .links-container a:hover {
-            color: var(--secondary-color);
-            text-decoration: underline;
+            gap: 12px;
+            margin-top: 12px;
+            flex-wrap: wrap;
         }
 
         .logo-container {
             text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo-container i {
-            font-size: 3rem;
-            color: var(--accent-color);
             margin-bottom: 10px;
         }
 
-        .swal2-popup {
-            border-radius: 15px;
+        /* ikon responsif */
+        .logo-container i {
+            font-size: clamp(2.2rem, 6vw, 3rem);
+            color: var(--accent-color);
+            margin-bottom: 6px;
         }
 
-        .swal2-styled.swal2-confirm {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            border-radius: 10px;
-        }
-
-        @media (max-width: 576px) {
-            .card-header {
-                padding: 20px 15px;
-            }
-            
-            .card-body {
-                padding: 20px;
-            }
-            
-            .links-container {
-                flex-direction: column;
-                gap: 10px;
-            }
+        /* smaller devices tweaks */
+        @media (max-width: 420px) {
+            body { padding: 16px; }
+            .links-container { justify-content: center; gap: 8px; font-size: 0.95rem; }
+            .card-header { padding: 16px; }
+            .card-body { padding: 16px; }
         }
     </style>
 </head>
 <body>
+    <!-- ubah wrapper menjadi responsive container -->
     <div class="login-container">
         <div class="card">
             <div class="card-header">
                 <div class="logo-container">
-                    <i class="fas fa-graduation-cap"></i>
+                    <i class="fas fa-graduation-cap" aria-hidden="true"></i>
                 </div>
                 <h3 class="system-name">Sistem Aplikasi PKL</h3>
                 <p class="login-title">Masuk ke Akun Anda</p>
             </div>
-            
+
             <div class="card-body">
                 <?php if (isset($error)) : ?>
                     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -381,7 +346,7 @@ if (isset($_POST["login"])) {
                 </form>
             </div>
         </div>
-        
+
         <div class="text-center mt-4">
             <p class="mb-0">&copy; <?php echo date('Y'); ?> Sistem PKL. All rights reserved.</p>
         </div>
@@ -389,12 +354,12 @@ if (isset($_POST["login"])) {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Efek animasi saat input focus
+        // Efek animasi saat input focus (tetap)
         document.querySelectorAll('.form-control').forEach(input => {
             input.addEventListener('focus', function() {
                 this.parentElement.classList.add('focused');
             });
-            
+
             input.addEventListener('blur', function() {
                 if (!this.value) {
                     this.parentElement.classList.remove('focused');
